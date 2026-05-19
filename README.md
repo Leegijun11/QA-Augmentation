@@ -29,7 +29,7 @@ BERT-base, DistilBERT 모델로 감정 분류를 하는 흐름으로 논문이 �
 | 실험 | 학습 데이터 | 결과 |
 |------|------------|------|
 | Baseline | 원본 3,000개 | Loss:0.15 / EM:2.8 / F1:3.5 |
-| Augmented | 원본 + 증강 9,000개 | Loss:0.11 / EM:19 / F1:24.3 |
+| Augmented | 원본 + 증강 9,000개 | Loss:0.11 / EM:19.2 / F1:23.6 |
 
 ## 폴더 구조
 ```
@@ -37,11 +37,12 @@ QA-Augmentation/
 ├── data/
 │   ├── train_sampled.csv       # 원본 학습 데이터 (3,000개)
 │   ├── test_sampled.csv        # 테스트 데이터 (500개, 고정)
-│   └── train_augmented.csv     # GPT 증강 데이터 (9,000개)
+│   ├── train_augmented.csv     # GPT 증강 데이터 (9,000개)
+│   └── wrong_cases.csv         # 예측 실패 데이터 (404개)
 ├── notebooks/
 │   ├── 01_baseline_T5.py       # 원본 데이터로 T5 학습
 │   ├── 02_text_augmentation.py # GPT-3.5로 질문 증강
-│   └── 03_augmented_T5.py      # 증강 데이터로 T5 학습
+│   └── 03_augmented_T5.py      # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
 └── results/                    # 시각화 그래프 저장
 ```
 
