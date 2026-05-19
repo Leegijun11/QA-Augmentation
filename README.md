@@ -22,7 +22,4 @@ GPT3Mix: Leveraging Large-scale Language Models for Text Augmentation (Yoo et al
 ### augmentation
 ![EM/F1](results/02_augmentation_visualization.PNG)
 
-## 실험 환경
-- Python 3.10
-- PyTorch 2.x
-- transformers 4.x
+
