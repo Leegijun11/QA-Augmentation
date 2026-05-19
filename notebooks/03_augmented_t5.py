@@ -117,12 +117,12 @@ import evaluate
 
 metric = evaluate.load("squad")
 
-def run_evaluate_loop(model, test_loader, device):
+def run_evaluate_loop(model, test_loader, device, test_df):
     model.eval()
     test_loss   = 0
     predictions = []
     references  = []
-
+    wrong_case = []
     with torch.no_grad():
         progress_bar = tqdm(test_loader, unit='batch', total=len(test_loader), mininterval=1)
 
@@ -136,17 +136,33 @@ def run_evaluate_loop(model, test_loader, device):
 
             generated      = model.generate(input_ids=input_ids, max_length=64)
             decoded_preds  = tokenizer.batch_decode(generated, skip_special_tokens=True)
-            decoded_labels = tokenizer.batch_decode(labels,    skip_special_tokens=True)
+            decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
             for i, (pred, label) in enumerate(zip(decoded_preds, decoded_labels)):
                 uid = str(idx * test_loader.batch_size + i)
+                data_idx = idx * test_loader.batch_size + i
                 predictions.append({"id": uid, "prediction_text": pred})
                 references.append({"id": uid, "answers": {"text": [label], "answer_start": [0]}})
+
+
+                if pred.strip() != label.strip():
+                    answer = test_df.iloc[data_idx]['answers']
+                    if isinstance(answer, str):
+                        answer = ast.literal_eval(answer)
+
+                    wrong_case.append({
+                        'question': test_df.iloc[data_idx]['question'],
+                        'context': test_df.iloc[data_idx]['context'],
+                        'answer': label,
+                        'pred' : pred
+                    })
+
+
 
             progress_bar.set_postfix({'test_loss': test_loss / (idx + 1)})
 
     result = metric.compute(predictions=predictions, references=references)
-    return test_loss / len(test_loader), result['exact_match'], result['f1']
+    return test_loss / len(test_loader), result['exact_match'], result['f1'], wrong_case
 
 """#7. 루프"""
 
@@ -158,12 +174,13 @@ min_loss   = np.inf
 history    = {'train_loss': [], 'test_loss': [], 'em': [], 'f1': []}
 
 for epoch in range(num_epochs):
-    train_loss        = run_train_loop(model, train_loader, optimizer, device)
-    test_loss, em, f1 = run_evaluate_loop(model, test_loader, device)
+    train_loss = run_train_loop(model, train_loader, optimizer, device)
+    test_loss, em, f1, wrong_case = run_evaluate_loop(model, test_loader, device, test)
 
     if test_loss < min_loss:
         min_loss = test_loss
-        torch.save(model.state_dict(), f'../models/{model_name}.pth')
+        last_wrong_case = wrong_case
+        torch.save(model.state_dict(), f'/content/sample_data/{model_name}.pth')
 
     history['train_loss'].append(train_loss)
     history['test_loss'].append(test_loss)
@@ -171,6 +188,10 @@ for epoch in range(num_epochs):
     history['f1'].append(f1)
 
     print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {train_loss:.4f} | Test Loss: {test_loss:.4f} | EM: {em:.1f}% | F1: {f1:.1f}%")
+
+wrong_case_df = pd.DataFrame(last_wrong_case)
+wrong_case_df.to_csv('/content/sample_data/wrong_cases.csv',index=False, encoding='utf-8-sig')
+print(f"\n틀린 케이스 {len(wrong_case_df)}개 저장")
 
 """#8. 시각화"""
 
@@ -185,11 +206,11 @@ axes[0].set_xlabel('Epoch')
 axes[0].legend()
 
 axes[1].plot(history['em'], color='green')
-axes[1].set_title('Exact Match (%)')
+axes[1].set_title('Exact Match')
 axes[1].set_xlabel('Epoch')
 
 axes[2].plot(history['f1'], color='orange')
-axes[2].set_title('F1 Score (%)')
+axes[2].set_title('F1 Score')
 axes[2].set_xlabel('Epoch')
 
 plt.tight_layout()
