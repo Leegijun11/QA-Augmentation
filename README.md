@@ -42,7 +42,8 @@ QA-Augmentation/
 ├── notebooks/
 │   ├── 01_baseline_T5.py       # 원본 데이터로 T5 학습
 │   ├── 02_text_augmentation.py # GPT-3.5로 질문 증강
-│   └── 03_augmented_T5.py      # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
+│   ├── 03_augmented_T5.py      # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
+│   └── 04_error_analysis.py    # 예측 실패 데이터 분석
 └── results/                    # 시각화 그래프 저장
 ```
 
