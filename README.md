@@ -28,7 +28,7 @@ BERT-base, DistilBERT 모델로 감정 분류를 하는 흐름으로 논문이 �
 ## 실험 구성
 | 실험 | 학습 데이터 | 결과 |
 |------|------------|------|
-| Baseline | 원본 3,000개 | Loss:0.15 / EM:2.8 / F1:3.5 |
+| Baseline | 원본 3,000개 | Loss:3.8 / EM:10.6 / F1:14.3 |
 | Augmented | 원본 + 증강 9,000개 | Loss:0.11 / EM:19.2 / F1:23.6 |
 
 - **EM** : 정답과 완전히 일치하는 비율
@@ -45,7 +45,8 @@ QA-Augmentation/
 │   ├── 01_baseline_T5.py       # 원본 데이터로 T5 학습
 │   ├── 02_text_augmentation.py # GPT-3.5로 질문 증강
 │   ├── 03_augmented_T5.py      # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
-│   └── 04_error_analysis.py    # 예측 실패 데이터 분석
+│   ├── 04_error_analysis.py    # 예측 실패 데이터 분석
+│   └── 05_improved_t5.py       # 실패 데이터 기반 모델 성능 최적화
 └── results/                    # 시각화 그래프 저장
 ```
 
@@ -85,6 +86,4 @@ QA-Augmentation/
 
 
 ## 결론
-GPT 데이터 증강 적용 시 EM과 F1이 약 6.8배 향상되었습니다.
-동일한 context에서 질문 표현을 다양화하는 방식이
-QA 모델 일반화 성능에 효과적임을 확인하였습니다.
+
