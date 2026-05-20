@@ -71,10 +71,14 @@ class CustomDataset(Dataset):
             max_length=128
         )
 
+        labels = target['input_ids'].squeeze()
+
+        labels[labels == self.tokenizer.pad_token_id] = -100
+
         return {
             'input_ids':      feature['input_ids'].squeeze(),
             'attention_mask': feature['attention_mask'].squeeze(),
-            'labels':         target
+            'labels':         labels
         }
 
 
@@ -83,7 +87,6 @@ test_data  = CustomDataset(test,  tokenizer)
 
 train_loader = DataLoader(train_data, batch_size=4, shuffle=True)
 test_loader  = DataLoader(test_data,  batch_size=4, shuffle=False)
-
 """#4. T5 모델 & 옵티마이저"""
 
 import torch.optim as optim
@@ -104,7 +107,7 @@ def run_train_loop(model, train_loader, optimizer, device):
     for idx, batch in enumerate(progress_bar):
         input_ids      = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
-        labels         = batch['labels']['input_ids'].squeeze(1).to(device)
+        labels         = batch['labels'].to(device)
 
         optimizer.zero_grad()
         output = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
@@ -119,7 +122,7 @@ def run_train_loop(model, train_loader, optimizer, device):
 
 """#6. 평가 함수 (+ EM + F1)"""
 
-# pip install evaluate
+#pip install evaluate
 import evaluate
 import torch
 
@@ -137,14 +140,16 @@ def run_evaluate_loop(model, test_loader, device):
         for idx, batch in enumerate(progress_bar):
             input_ids      = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
-            labels         = batch['labels']['input_ids'].squeeze(1).to(device)
+            labels         = batch['labels'].to(device)
 
             output     = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
             test_loss += output.loss.item()
 
             generated      = model.generate(input_ids=input_ids, max_length=64)
             decoded_preds  = tokenizer.batch_decode(generated, skip_special_tokens=True)
-            decoded_labels = tokenizer.batch_decode(labels,    skip_special_tokens=True)
+            labels_for_decode = labels.clone()
+            labels_for_decode[labels_for_decode == -100] = tokenizer.pad_token_id
+            decoded_labels = tokenizer.batch_decode(labels_for_decode,    skip_special_tokens=True)
 
             for i, (pred, label) in enumerate(zip(decoded_preds, decoded_labels)):
                 uid = str(idx * test_loader.batch_size + i)
@@ -161,17 +166,13 @@ def run_evaluate_loop(model, test_loader, device):
 import numpy as np
 
 num_epochs = 10
-model_name = "baseline_T5"
-min_loss   = np.inf
+
 history    = {'train_loss': [], 'test_loss': [], 'em': [], 'f1': []}
 
 for epoch in range(num_epochs):
     train_loss            = run_train_loop(model, train_loader, optimizer, device)
     test_loss, em, f1     = run_evaluate_loop(model, test_loader, device)
 
-    if test_loss < min_loss:
-        min_loss = test_loss
-        torch.save(model.state_dict(), f'../models/{model_name}.pth')
 
     history['train_loss'].append(train_loss)
     history['test_loss'].append(test_loss)
