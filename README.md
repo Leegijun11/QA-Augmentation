@@ -31,6 +31,8 @@ BERT-base, DistilBERT 모델로 감정 분류를 하는 흐름으로 논문이 �
 | Baseline | 원본 3,000개 | Loss:0.15 / EM:2.8 / F1:3.5 |
 | Augmented | 원본 + 증강 9,000개 | Loss:0.11 / EM:19.2 / F1:23.6 |
 
+- **EM** : 정답과 완전히 일치하는 비율
+- **F1** : 정답과 예측의 토큰 겹침 비율
 ## 폴더 구조
 ```
 QA-Augmentation/
@@ -80,3 +82,9 @@ QA-Augmentation/
 평균적으로 정답보다 긴 텍스트로 예측하는 경향을 가집니다.
 
 ![Loss_analysis](results/03_error_length_visualization.PNG)
+
+
+## 결론
+GPT 데이터 증강 적용 시 EM과 F1이 약 6.8배 향상되었습니다.
+동일한 context에서 질문 표현을 다양화하는 방식이
+QA 모델 일반화 성능에 효과적임을 확인하였습니다.
