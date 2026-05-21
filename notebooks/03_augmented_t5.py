@@ -64,10 +64,13 @@ class CustomDataset(Dataset):
             max_length=128
         )
 
+        labels = target['input_ids'].squeeze()
+        labels[labels == self.tokenizer.pad_token_id] = -100
+
         return {
             'input_ids':      feature['input_ids'].squeeze(),
             'attention_mask': feature['attention_mask'].squeeze(),
-            'labels':         target
+            'labels':         labels
         }
 
 
@@ -129,14 +132,16 @@ def run_evaluate_loop(model, test_loader, device, test_df):
         for idx, batch in enumerate(progress_bar):
             input_ids      = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
-            labels         = batch['labels']['input_ids'].squeeze(1).to(device)
+            labels         = batch['labels'].to(device)
 
             output     = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
             test_loss += output.loss.item()
 
             generated      = model.generate(input_ids=input_ids, max_length=64)
             decoded_preds  = tokenizer.batch_decode(generated, skip_special_tokens=True)
-            decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+            labels_for_decode = labels.clone()
+            labels_for_decode[labels_for_decode == -100] = tokenizer.pad_token_id
+            decoded_labels = tokenizer.batch_decode(labels_for_decode, skip_special_tokens=True)
 
             for i, (pred, label) in enumerate(zip(decoded_preds, decoded_labels)):
                 uid = str(idx * test_loader.batch_size + i)
