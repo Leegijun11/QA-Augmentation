@@ -64,9 +64,9 @@ QA-Augmentation/
 ### baseline
 ![Loss](results/01_baseline_visualization.PNG) <br/>
 ### augmentation
-![EM/F1](results/02_augmentation_visualization.PNG) <br/>
+![EM/F1](results/02_augmentation_visualization.png) <br/>
 ### improved
-![Improved](results/03_improved_visualization.PNG) <br/>
+![Improved](results/04_improved_visualization.PNG) <br/>
 
 ## 오류 분석
 
@@ -86,7 +86,7 @@ QA-Augmentation/
 
 ![Loss_analysis](results/03_error_length_visualization.PNG)
 
-### 개선 과정
+## 개선 과정
 wrong_cases 분석 결과 예측이 정답보다
 평균적으로 길게 생성되는 경향을 발견하여,
 generate() 의 max_length를 줄여 개선을 시도하였습니다.
