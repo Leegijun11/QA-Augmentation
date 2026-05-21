@@ -29,7 +29,8 @@ BERT-base, DistilBERT 모델로 감정 분류를 하는 흐름으로 논문이 �
 | 실험 | 학습 데이터 | 결과 |
 |------|------------|------|
 | Baseline | 원본 3,000개 | Loss:3.8 / EM:10.6 / F1:14.3 |
-| Augmented | 원본 + 증강 9,000개 | Loss:0.11 / EM:19.2 / F1:23.6 |
+| Augmented | 원본 + 증강 9,000개 | Loss:3.2 / EM:26.2 / F1:32.3 |
+| Improved | 원본 + 증강 9,000개 | Loss:3.2 / EM:26.8 / F1:32.7 |
 
 - **EM** : 정답과 완전히 일치하는 비율
 - **F1** : 정답과 예측의 토큰 겹침 비율
@@ -63,8 +64,9 @@ QA-Augmentation/
 ### baseline
 ![Loss](results/01_baseline_visualization.PNG) <br/>
 ### augmentation
-![EM/F1](results/02_augmentation_visualization.PNG)
-
+![EM/F1](results/02_augmentation_visualization.PNG) <br/>
+### improved
+![Improved](results/03_improved_visualization.PNG) <br/>
 
 ## 오류 분석
 
@@ -84,6 +86,22 @@ QA-Augmentation/
 
 ![Loss_analysis](results/03_error_length_visualization.PNG)
 
+### 개선 과정
+wrong_cases 분석 결과 예측이 정답보다
+평균적으로 길게 생성되는 경향을 발견하여,
+generate() 의 max_length를 줄여 개선을 시도하였습니다.
 
 ## 결론
+GPT-3.5를 활용한 질문 증강(3,000개 → 9,000개)을 통해
+EM 10.6 → 26.2 (약 2.5배), F1 14.3 → 32.3 (약 2.3배) 향상을 확인하였습니다.
 
+동일한 context에서 질문 표현을 다양화하는 방식이
+QA 모델의 일반화 성능에 효과적임을 실험으로 검증하였습니다.
+
+wrong_cases 분석 결과 예측이 정답보다 길게 생성되는 경향을 발견하여
+generate()의 max_length를 64 → 32로 축소하였으나,
+EM 26.2 → 26.8, F1 32.3 → 32.7로 유의미한 성능 향상은 없었습니다.
+
+이는 max_length 조정만으로는 한계가 있으며,
+학습 데이터 품질 개선이나 더 큰 모델 사용이
+추가적인 성능 향상에 필요할 것으로 판단됩니다.
