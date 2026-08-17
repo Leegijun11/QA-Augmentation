@@ -34,6 +34,7 @@ BERT-base, DistilBERT 모델로 감정 분류를 하는 흐름으로 논문이 �
 
 - **EM** : 정답과 완전히 일치하는 비율
 - **F1** : 정답과 예측의 토큰 겹침 비율
+
 ## 폴더 구조
 ```
 QA-Augmentation/
@@ -43,11 +44,11 @@ QA-Augmentation/
 │   ├── train_augmented.csv     # GPT 증강 데이터 (9,000개)
 │   └── wrong_cases.csv         # 예측 실패 데이터 (404개)
 ├── notebooks/
-│   ├── 01_baseline_T5.py       # 원본 데이터로 T5 학습
-│   ├── 02_text_augmentation.py # GPT-3.5로 질문 증강
-│   ├── 03_augmented_T5.py      # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
-│   ├── 04_error_analysis.py    # 예측 실패 데이터 분석
-│   └── 05_improved_t5.py       # 실패 데이터 기반 모델 성능 최적화
+│   ├── 01_baseline_t5.py        # 원본 데이터로 T5 학습
+│   ├── 02_text_augmentation_.py # GPT-3.5로 질문 증강
+│   ├── 03_augmented_t5.py       # 증강 데이터로 T5 학습 및 최적화 모델과 예측 실패 데이터 도출
+│   ├── 04_error_analysis.py     # 예측 실패 데이터 분석
+│   └── 05_improved_t5.py        # 실패 데이터 기반 모델 성능 최적화
 └── results/                    # 시각화 그래프 저장
 ```
 
@@ -57,7 +58,7 @@ QA-Augmentation/
 - **Augmentation**: gpt-3.5-turbo
 
 ## 데이터셋
-- **KorQuAD 1.0**": 한국어 위키피디아 기반 QA 데이터셋
+- **KorQuAD 1.0**: 한국어 위키피디아 기반 QA 데이터셋
 
 
 ## 결과
